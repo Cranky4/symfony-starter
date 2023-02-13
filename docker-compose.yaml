@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  app-nginx:
+    image: nginx:stable-alpine
+    restart: unless-stopped
+    ports:
+      - '8080:80'
+    depends_on:
+      - app-php
+    volumes:
+      - ./public:/app/public
+      - ./.docker/nginx/app.conf:/etc/nginx/conf.d/app.conf
+      - ./var/nginx/:/var/log/nginx/
+
+  app-php:
+    build:
+      context: ./.docker/php
+    depends_on:
+      - app-pgsql
+    volumes:
+      - ./:/app
+    working_dir: /app
+
+  app-pgsql:
+    image: postgres:15-alpine
+    ports:
+      - '45432:5432'
+    environment:
+      POSTGRES_DB: '${DB_DATABASE:-app}'
+      POSTGRES_USER: '${DB_USERNAME:-app}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - pgsql-volume:/var/lib/postgresql/data/pgdata:delegated
+
+volumes:
+  pgsql-volume:

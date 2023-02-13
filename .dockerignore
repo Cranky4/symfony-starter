@@ -1,0 +1,4 @@
+.docker
+.dockerignore
+docker-compose.yaml
+Makefile
