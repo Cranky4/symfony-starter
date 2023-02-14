@@ -16,6 +16,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    
+    - run: sudo apt install software-properties-common
+    - run: sudo add-apt-repository ppa:ondrej/php
+    - run: sudo apt update
+    - run: sudo apt install php8.2
+    - run: php -v
+    - run: sudo apt install php8.2-common php8.2-xml
 
     - name: Validate composer.json and composer.lock
       run: composer validate --strict
