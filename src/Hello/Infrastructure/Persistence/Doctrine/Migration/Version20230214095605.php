@@ -19,7 +19,10 @@ final class Version20230214095605 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql('CREATE TABLE hellos (id UUID NOT NULL, message VARCHAR(255) DEFAULT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE hellos (
+            id UUID NOT NULL, message VARCHAR(255) DEFAULT NULL, 
+            created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id)
+        )');
         $this->addSql('COMMENT ON COLUMN hellos.created_at IS \'(DC2Type:datetime_immutable)\'');
     }
 

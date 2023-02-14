@@ -30,8 +30,7 @@ phpstan:
 	docker compose exec app-php composer run phpstan
 phpcs:
 	docker compose exec app-php composer run phpcs
+phpcbf:
+	docker compose exec app-php composer run phpcbf
 test:
 	docker compose exec app-php composer run paratest
-
-run:
-	docker compose exec app-php composer validate --strict
