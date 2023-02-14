@@ -9,6 +9,14 @@ restart: down up
 build:
 	docker compose build --pull
 
+# Composer
+composer-install:
+	docker compose exec app-php composer install
+composer-update:
+	docker compose exec app-php composer update -W
+composer-validate:
+	docker compose exec app-php composer validate --strict
+
 # Migrations
 migrate-diff:
 	docker compose exec app-php bin/console make:migration -q
@@ -26,4 +34,4 @@ test:
 	docker compose exec app-php composer run paratest
 
 run:
-	docker compose exec app-php php bin/console debug:route
+	docker compose exec app-php composer validate --strict
