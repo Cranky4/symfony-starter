@@ -22,7 +22,7 @@ jobs:
     - run: sudo apt update
     - run: sudo apt install php8.2
     - run: php -v
-    - run: sudo apt install php8.2-common
+    - run: sudo apt install php8.2-common php8.2-xml
 
     - name: Validate composer.json and composer.lock
       run: composer validate --strict
