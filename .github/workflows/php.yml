@@ -18,9 +18,11 @@ jobs:
     - uses: actions/checkout@v3
     
     - run: sudo dpkg -l | grep php | tee packages.txt
-    - run: sudo add-apt-repository ppa:ondrej/php 
+    - run: sudo apt install apt-transport-https lsb-release ca-certificates wget -y
+    - run: sudo wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg 
+    - run: sudo sh -c 'echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
     - run: sudo apt update
-    - run: sudo apt install php8.2 php8.2-cli php-8.2{bz2,curl,mbstring,intl}
+    - run: sudo apt install php8.2 php8.2-cli php8.2-{bz2,curl,mbstring,intl}
     - run: sudo apt install php8.2-fpm
 
     - name: Validate composer.json and composer.lock
