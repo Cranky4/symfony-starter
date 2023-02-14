@@ -1,0 +1,82 @@
+openapi: 3.0.0
+info:
+  title: 'APP API'
+  version: '1.0'
+servers:
+  -
+    url: 'http://localhost:8080'
+    description: 'Local server'
+paths:
+  /:
+    post:
+      tags:
+        - Hello
+      summary: 'Hello world'
+      operationId: App\Hello\Infrastructure\Api\V1\Controller\HelloController
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HelloRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelloItemsResponse'
+components:
+  schemas:
+    HelloRequest:
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 'My name is John!'
+          nullable: false
+        message:
+          type: string
+          example: 'My name is John!'
+          nullable: true
+      type: object
+    HelloItemsResponse:
+      required:
+        - createdAt
+      properties:
+        count:
+          type: string
+          format: datetime
+          example: '2021-01-03T02:30:00+01:00'
+          nullable: false
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/HelloResponse'
+          nullable: false
+      type: object
+    HelloResponse:
+      required:
+        - id
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          nullable: false
+        createdAt:
+          type: string
+          format: datetime
+          example: '2021-01-03T02:30:00+01:00'
+          nullable: false
+        message:
+          type: string
+          nullable: true
+      type: object
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+security:
+  -
+    bearerAuth: []

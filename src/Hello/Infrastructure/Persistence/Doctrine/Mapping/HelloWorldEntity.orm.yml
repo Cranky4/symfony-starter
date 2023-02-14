@@ -1,0 +1,16 @@
+App\Hello\Domain\Entity\HelloWorldEntity:
+  type: entity
+  table: hellos
+  repositoryClass: App\Hello\Infrastructure\Persistence\Doctrine\Repository\HelloWorldEntityRepository
+
+  id:
+    id:
+      type: guid
+
+  fields:
+    message:
+      type: string
+      nullable: true
+    createdAt:
+      type: datetime_immutable
+      nullable: false

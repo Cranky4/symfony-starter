@@ -4,17 +4,32 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
-        "php": ">=8.1",
+        "php": ">=8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "doctrine/doctrine-bundle": "^2.8",
+        "doctrine/doctrine-migrations-bundle": "^3.2",
+        "doctrine/orm": "^2.14",
         "symfony/console": "6.2.*",
         "symfony/dotenv": "6.2.*",
         "symfony/flex": "^2",
         "symfony/framework-bundle": "6.2.*",
+        "symfony/messenger": "6.2.*",
         "symfony/runtime": "6.2.*",
-        "symfony/yaml": "6.2.*"
-    },
+        "symfony/serializer": "6.2.*",
+        "symfony/validator": "6.2.*",
+        "symfony/yaml": "6.2.*",
+        "zircote/swagger-php": "*"
+    }
+    ,
     "require-dev": {
+        "brianium/paratest": "^7.0",
+        "phpstan/phpstan": "^1.9",
+        "roave/security-advisories": "dev-latest",
+        "squizlabs/php_codesniffer": "^3.7",
+        "symfony/maker-bundle": "^1.48",
+        "symfony/stopwatch": "6.2.*",
+        "symfony/web-profiler-bundle": "6.2.*"
     },
     "config": {
         "allow-plugins": {
@@ -53,7 +68,11 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
-        ]
+        ],
+        "generate-api-docs": "./vendor/bin/openapi -b vendor/autoload.php src/Common/Infrastructure/OpenApi src/Hello/Infrastructure/Api -o docs/openapi.yaml",
+        "phpstan": "./vendor/bin/phpstan analyse src",
+        "phpcs": "./vendor/bin/phpcs src",
+        "paratest": "./vendor/bin/paratest -p4 ./tests"
     },
     "conflict": {
         "symfony/symfony": "*"

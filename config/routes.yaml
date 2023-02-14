@@ -1,5 +1,5 @@
-controllers:
+api_hello_v1:
     resource:
-        path: ../src/Controller/
-        namespace: App\Controller
+        path: ../src/Hello/Infrastructure/Api/V1/Controller
+        namespace: App\Hello\Infrastructure\Api\V1\Controller
     type: attribute
