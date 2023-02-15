@@ -28,6 +28,8 @@
     <rule ref="Generic.CodeAnalysis.UselessOverridingMethod"/>
     <rule ref="Generic.Commenting.DocComment">
         <exclude name="Generic.Commenting.DocComment.MissingShort"/>
+        <exclude name="Generic.Commenting.DocComment.ContentAfterOpen"/>
+        <exclude name="Generic.Commenting.DocComment.ContentBeforeClose"/>
     </rule>
     <rule ref="Generic.Files.InlineHTML"/>
     <rule ref="Generic.Files.OneClassPerFile"/>
@@ -68,7 +70,9 @@
     <rule ref="Squiz.Classes.ClassFileName"/>
     <rule ref="Squiz.Classes.LowercaseClassKeywords"/>
     <rule ref="Squiz.Classes.SelfMemberReference"/>
-    <rule ref="Squiz.Commenting.BlockComment"/>
+    <rule ref="Squiz.Commenting.BlockComment">
+         <exclude name="Squiz.Commenting.BlockComment.WrongStart"/>
+    </rule>
     <rule ref="Squiz.Commenting.ClassComment">
         <exclude name="Squiz.Commenting.ClassComment.Missing"/>
     </rule>
