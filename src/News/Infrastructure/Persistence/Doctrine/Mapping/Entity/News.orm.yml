@@ -1,0 +1,40 @@
+App\News\Domain\Entity\News:
+  type: entity
+  repositoryClass: App\News\Infrastructure\Persistence\Doctrine\Repository\NewsRepository
+  table: news
+
+  indexes:
+    UQ_news_source:
+      columns: [source_name, source_id]
+      unique: true
+    IN_news_day:
+      columns: [day]
+
+  id:
+    id:
+      type: guid
+
+  fields:
+    title:
+      type: string
+      nullable: false
+    content:
+      type: text
+      nullable: false
+    short:
+      type: string
+      nullable: false
+    day:
+      type: date_immutable
+      nullable: false
+    time:
+      type: string
+      nullable: false
+    image:
+      type: string
+      nullable: true
+
+  embedded:
+    source:
+      class: App\News\Domain\ValueObject\NewsSource
+      nullable: true

@@ -36,6 +36,17 @@ readonly class NewsRequest implements RequestDTOInterface
             nullable: false,
         )]
         public string $perPage = '10',
+        #[
+            Assert\NotBlank(allowNull: true),
+            Assert\Type(type: 'string'),
+        ]
+        #[OA\Property(
+            type: 'string',
+            default: 'today',
+            example: '2023-02-10',
+            nullable: true,
+        )]
+        public ?string $day = null,
     ) {
     }
 }

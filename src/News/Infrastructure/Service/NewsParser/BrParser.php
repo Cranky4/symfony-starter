@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\News\Infrastructure\Service\NewsParser;
 
+use App\News\Infrastructure\Service\NewsParser\Exception\ParsingErrorException;
 use DateTimeImmutable;
 use Generator;
+use InvalidArgumentException;
 use RuntimeException;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -22,22 +24,29 @@ final readonly class BrParser implements NewsParserInterface
     }
 
     /**
-     * @phpstan-return Generator<scalar, string>
+     * @phpstan-return Generator<string>
      */
     public function parseLinks(): Generator
     {
         $crawler = $this->prepareCrawler($this->url);
 
-        $newsNodes = $crawler->filterXPath(
-            'html/body/div[3]/main/div/div[1]/div[2]/div/div/div[1]/div[2]/div[1]/div/div',
+        $newsNodes = $this->tryToParse(
+            static fn(): Crawler => $crawler->filterXPath(
+                'html/body/div[3]/main/div/div[1]/div[2]/div/div/div[1]/div[2]/div[1]/div/div',
+            ),
+            'Cannot parse news page'
         );
 
-// TODO: check error
+        // TODO: check error
         $url = parse_url($this->url);
 
         foreach ($newsNodes as $domElement) {
-            $crawler     = new Crawler($domElement);
-            $relativeUrl = $crawler->filterXPath('div/div/div[2]/a')->attr('href');
+            $crawler = new Crawler($domElement);
+
+            $relativeUrl = $this->tryToParse(
+                static fn(): ?string => $crawler->filterXPath('div/div/div[2]/a')->attr('href'),
+                'Cannot parse news links',
+            );
 
             yield sprintf('%s://%s%s', $url['scheme'], $url['host'], $relativeUrl);
         }
@@ -50,52 +59,114 @@ final readonly class BrParser implements NewsParserInterface
         $news = [];
         foreach ($crawler->filterXPath('html/head/meta') as $domElement) {
             if ($domElement->getAttribute('property') === 'og:title') {
-                $news['title'] = $domElement->getAttribute('content');
-            }
-            if ($domElement->getAttribute('property') === 'og:image') {
-                $news['preview_image'] = $domElement->getAttribute('content');
+                $news['title'] = $this->sanitizeContent($domElement->getAttribute('content'));
             }
             if ($domElement->getAttribute('property') === 'og:description') {
-                $news['description'] = $domElement->getAttribute('content');
+                $news['short'] = mb_substr(
+                    $this->sanitizeContent(
+                        $domElement->getAttribute('content')
+                    ),
+                    0,
+                    200,
+                );
             }
             if ($domElement->getAttribute('property') === 'og:url') {
-                $news['link'] = $domElement->getAttribute('content');
+                $news['link'] = $this->sanitizeContent($domElement->getAttribute('content'));
             }
         }
 
-        $news['image'] = $crawler->filterXPath(
-            'html/body/div[3]/main/div[1]/div[2]/div[3]/div[3]/div[1]/div[1]/img',
-        )->attr('src');
-
-        $paragraphs = $crawler
-            ->filterXPath('html/body/div[3]/main/div[1]/div[2]/div[3]/div[3]/div[1]/div[2]/div[2]/div[1]/p')
-            ->each(
-                static fn(Crawler $node): string => sprintf('<p>%s</p>', strip_tags($node->text(), '<p>')),
-            );
-
-        $news['content']  = trim(implode($paragraphs));
-        $news['dateTime'] = $crawler->filterXPath(
-            'html/body/div[3]/main/div[1]/div[2]/div[3]/div[2]/div/div[2]/div/div[2]/span[1]',
-        )->text();
+        $news['image']    = $this->parseImage($crawler);
+        $news['content']  = $this->parseContent($crawler);
+        $news['dateTime'] = $this->parseDateTime($crawler);
 
         return new NewsDto(
             source: self::getSourceName(),
             id: explode('id=', $news['link'])[1] ?? throw new RuntimeException('Cannot extract id'),
             title: $news['title'],
-            image: $news['image'],
-            description: $news['description'],
+            short: $news['short'],
             content: $news['content'],
             link: $news['link'],
             dateTime: new DateTimeImmutable($news['dateTime']),
+            image: $news['image'],
         );
     }
 
+    /**
+     * TODO: добавить обработку ошибок
+     */
     private function prepareCrawler(string $link): Crawler
     {
-        $content = file_get_contents($link); // optimistic
+        $content = file_get_contents($link);
         $crawler = new Crawler();
         $crawler->addHtmlContent($content);
 
         return $crawler;
+    }
+
+    /**
+     * @throws ParsingErrorException
+     */
+    private function tryToParse(callable $fn, string $message): mixed
+    {
+        try {
+            return $fn();
+        } catch (InvalidArgumentException $exception) {
+            throw new ParsingErrorException($message, 0, $exception);
+        }
+    }
+
+    private function parseDateTime(Crawler $crawler): string
+    {
+        $paths = [
+            'html/body/div[3]/main/div[1]/div[2]/div[2]/div[2]/div/div[2]/div/div[2]/span[1]',
+            'html/body/div[3]/main/div[1]/div[2]/div[3]/div[2]/div/div[2]/div/div[2]/span[1]',
+        ];
+
+        foreach ($paths as $path) {
+            try {
+                return $crawler->filterXPath($path)->text();
+            } catch (InvalidArgumentException) {
+                continue;
+            }
+        }
+
+        throw new ParsingErrorException('Cannot parse datetime');
+    }
+
+    private function parseImage(Crawler $crawler): ?string
+    {
+        try {
+            return $crawler->filterXPath(
+                'html/body/div[3]/main/div[1]/div[2]/div[3]/div[3]/div[1]/div[1]/img',
+            )->attr('src');
+        } catch (InvalidArgumentException) {
+            return null;
+        }
+    }
+
+    private function parseContent(Crawler $crawler): string
+    {
+        $paths = [
+            'html/body/div[3]/main/div[1]/div[2]/div[3]/div[3]/div[1]/div[2]/div[2]/div[1]',
+            'html/body/div[3]/main/div[1]/div[2]/div[3]/div[3]/div[2]/div[1]',
+        ];
+
+        foreach ($paths as $path) {
+            try {
+                return $this->sanitizeContent($crawler->filterXPath($path)->html());
+            } catch (InvalidArgumentException) {
+                continue;
+            }
+        }
+
+        throw new ParsingErrorException('Cannot parse content');
+    }
+
+    /**
+     * TODO: добавить дальнейшую очистку текста
+     */
+    private function sanitizeContent(string $html): string
+    {
+        return strip_tags(trim($html), '<p>');
     }
 }

@@ -13,7 +13,9 @@ interface NewsParserInterface
     public function parseNewsItem(string $link): NewsDto;
 
     /**
-     * @phpstan-return Generator<scalar, string>
+     * @phpstan-return Generator<string>
+     *
+     * TODO: можно добавить сюда доп параметры (например: количество или доп GET-параметры для запроса ссылок)
      */
     public function parseLinks(): Generator;
 }

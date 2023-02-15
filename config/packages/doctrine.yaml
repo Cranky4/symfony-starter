@@ -8,12 +8,18 @@ doctrine:
     naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
     auto_mapping: true
     mappings:
-      Hello:
+      News:
         is_bundle: false
         type: yml
-        dir: '%kernel.project_dir%/src/Hello/Infrastructure/Persistence/Doctrine/Mapping'
-        prefix: 'App\Hello\Domain\Entity'
-        alias: Hello
+        dir: '%kernel.project_dir%/src/News/Infrastructure/Persistence/Doctrine/Mapping/Entity'
+        prefix: 'App\News\Domain\Entity'
+        alias: News
+      NewsVO:
+        is_bundle: false
+        type: yml
+        dir: '%kernel.project_dir%/src/News/Infrastructure/Persistence/Doctrine/Mapping/ValueObject'
+        prefix: 'App\News\Domain\ValueObject'
+        alias: NewsVO
 
 when@test:
   doctrine:

@@ -4,11 +4,18 @@ declare(strict_types=1);
 
 namespace App\News\Infrastructure\Service\NewsParser;
 
+use App\News\Application\UseCase\News\Create\CreateCommand;
+use Generator;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
+use Symfony\Component\Messenger\HandleTrait;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class NewsParser
 {
+    use HandleTrait;
+
     public const NEWS_PARSER_TAG = 'news.parsers.parser';
 
     private ServiceLocator $parsersLocator;
@@ -19,16 +26,41 @@ class NewsParser
             defaultIndexMethod: 'getSourceName',
         )]
         ServiceLocator $parsersLocator,
+        MessageBusInterface $commandBus,
     ) {
         $this->parsersLocator = $parsersLocator;
+        $this->messageBus     = $commandBus;
     }
 
-    public function parse(string $sourceName)
+    /**
+     * @phpstan-return Generator<string>
+     */
+    public function getLinks(string $sourceName): Generator
     {
+        /** @var NewsParserInterface $parser */
         $parser = $this->parsersLocator->get($sourceName);
 
-        dd($parser);
+        return $parser->parseLinks();
+    }
 
-        //TODO:
+    public function parseAndSave(string $sourceName, string $link): void
+    {
+        /** @var NewsParserInterface $parser */
+        $parser = $this->parsersLocator->get($sourceName);
+
+        $item = $parser->parseNewsItem($link);
+
+        $this->handle(
+            new CreateCommand(
+                id: Uuid::uuid7()->toString(),
+                source: $item->source,
+                sourceId: $item->id,
+                title: $item->title,
+                short: $item->short,
+                content: $item->content,
+                dateTime: $item->dateTime,
+                image: $item->image,
+            )
+        );
     }
 }
