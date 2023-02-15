@@ -25,7 +25,7 @@ final readonly class BrParser implements NewsParserInterface
 
     /**
      * @phpstan-return Generator<string>
-     * @throws RuntimeException
+     * @throws         RuntimeException
      */
     public function parseLinks(): Generator
     {
@@ -38,7 +38,7 @@ final readonly class BrParser implements NewsParserInterface
             'Cannot parse news page'
         );
 
-        $url = (array) parse_url($this->url);
+        $url = (array)parse_url($this->url);
         if (!array_key_exists('host', $url)) {
             throw new RuntimeException('Unknown host');
         }
