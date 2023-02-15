@@ -25,6 +25,7 @@ final readonly class BrParser implements NewsParserInterface
 
     /**
      * @phpstan-return Generator<string>
+     * @throws RuntimeException
      */
     public function parseLinks(): Generator
     {
@@ -103,6 +104,8 @@ final readonly class BrParser implements NewsParserInterface
 
     /**
      * TODO: добавить обработку ошибок
+     *
+     * @throws RuntimeException
      */
     private function prepareCrawler(string $link): Crawler
     {
