@@ -1,9 +1,16 @@
 parameters:
+  parser.url: '%env(PARSER_SITE_URL)%'
+  parser.source_name: '%env(PARSER_SOURCE_NAME)%'
 
 services:
   _defaults:
     autowire: true
     autoconfigure: true
+
+  _instanceof:
+    App\News\Infrastructure\Service\NewsParser\NewsParserInterface:
+      tags:
+        - 'news.parsers.parser'
 
   App\:
     resource: '../src/'
@@ -14,3 +21,8 @@ services:
 
   App\Hello\Domain\Repository\HelloRepositoryInterface:
     alias: 'App\Hello\Infrastructure\Persistence\Doctrine\Repository\HelloWorldEntityRepository'
+
+  # Infrastructure
+  App\News\Infrastructure\Service\NewsParser\BrParser:
+    arguments:
+      $url: "%parser.url%"

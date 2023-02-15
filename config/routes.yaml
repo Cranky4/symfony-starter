@@ -1,5 +1,5 @@
-api_hello_v1:
+api_news_v1:
     resource:
-        path: ../src/Hello/Infrastructure/Api/V1/Controller
-        namespace: App\Hello\Infrastructure\Api\V1\Controller
+        path: ../src/News/Infrastructure/Api/V1/Controller
+        namespace: App\News\Infrastructure\Api\V1\Controller
     type: attribute

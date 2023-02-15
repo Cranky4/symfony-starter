@@ -34,3 +34,6 @@ phpcbf:
 	docker compose exec app-php composer run phpcbf
 test:
 	docker compose exec app-php composer run paratest
+
+run:
+	docker compose exec app-php bin/console app:news:parse -s br
