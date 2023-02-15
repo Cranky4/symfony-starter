@@ -37,8 +37,13 @@ final readonly class BrParser implements NewsParserInterface
             'Cannot parse news page'
         );
 
-        // TODO: check error
-        $url = parse_url($this->url);
+        $url = (array) parse_url($this->url);
+        if (!array_key_exists('host', $url)) {
+            throw new RuntimeException('Unknown host');
+        }
+        if (!array_key_exists('scheme', $url)) {
+            throw new RuntimeException('Unknown scheme');
+        }
 
         foreach ($newsNodes as $domElement) {
             $crawler = new Crawler($domElement);
@@ -56,7 +61,12 @@ final readonly class BrParser implements NewsParserInterface
     {
         $crawler = $this->prepareCrawler($link);
 
-        $news = [];
+        $news = [
+            'title' => '',
+            'short' => '',
+            'link'  => '',
+        ];
+
         foreach ($crawler->filterXPath('html/head/meta') as $domElement) {
             if ($domElement->getAttribute('property') === 'og:title') {
                 $news['title'] = $this->sanitizeContent($domElement->getAttribute('content'));
@@ -97,6 +107,10 @@ final readonly class BrParser implements NewsParserInterface
     private function prepareCrawler(string $link): Crawler
     {
         $content = file_get_contents($link);
+        if ($content === false) {
+            throw new RuntimeException('Cannot get html');
+        }
+
         $crawler = new Crawler();
         $crawler->addHtmlContent($content);
 

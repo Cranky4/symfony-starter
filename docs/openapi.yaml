@@ -7,55 +7,46 @@ servers:
     url: 'http://localhost:8080'
     description: 'Local server'
 paths:
-  /:
+  /api/v1/news:
     post:
       tags:
-        - Hello
-      summary: 'Hello world'
-      operationId: App\Hello\Infrastructure\Api\V1\Controller\HelloController
+        - News
+      summary: News
+      operationId: App\News\Infrastructure\Api\V1\Controller\NewsController
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/HelloRequest'
+              $ref: '#/components/schemas/NewsRequest'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HelloItemsResponse'
+                $ref: '#/components/schemas/NewsResponse'
 components:
   schemas:
-    HelloRequest:
+    NewsRequest:
       properties:
-        id:
-          type: string
-          format: uuid
-          example: 'My name is John!'
+        page:
+          type: integer
+          default: '1'
+          example: '1'
           nullable: false
-        message:
+        perPage:
+          type: integer
+          default: '10'
+          example: '10'
+          nullable: false
+        day:
           type: string
-          example: 'My name is John!'
+          default: today
+          example: '2023-02-10'
           nullable: true
       type: object
-    HelloItemsResponse:
-      required:
-        - createdAt
-      properties:
-        count:
-          type: string
-          format: datetime
-          example: '2021-01-03T02:30:00+01:00'
-          nullable: false
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/HelloResponse'
-          nullable: false
-      type: object
-    HelloResponse:
+    NewsItemResponse:
       required:
         - id
         - createdAt
@@ -64,14 +55,42 @@ components:
           type: string
           format: uuid
           nullable: false
-        createdAt:
+        title:
+          type: string
+          nullable: false
+        short:
+          type: string
+          nullable: false
+        content:
+          type: string
+          nullable: false
+        day:
+          type: string
+          format: date
+          nullable: false
+        time:
+          type: string
+          format: time
+          nullable: false
+        image:
+          type: string
+          format: url
+          nullable: true
+      type: object
+    NewsResponse:
+      required:
+        - createdAt
+      properties:
+        total:
           type: string
           format: datetime
           example: '2021-01-03T02:30:00+01:00'
           nullable: false
-        message:
-          type: string
-          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/NewsItemResponse'
+          nullable: false
       type: object
   securitySchemes:
     bearerAuth:

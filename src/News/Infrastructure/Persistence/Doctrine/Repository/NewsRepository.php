@@ -89,4 +89,9 @@ class NewsRepository extends ServiceEntityRepository implements NewsRepositoryIn
             return 0;
         }
     }
+
+    public function findById(string $id): ?News
+    {
+        return $this->findOneBy(['id' => $id]);
+    }
 }

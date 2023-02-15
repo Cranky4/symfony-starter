@@ -73,7 +73,7 @@
         "post-update-cmd": [
             "@auto-scripts"
         ],
-        "generate-api-docs": "./vendor/bin/openapi -b vendor/autoload.php src/Common/Infrastructure/OpenApi src/Hello/Infrastructure/Api -o docs/openapi.yaml",
+        "generate-api-docs": "./vendor/bin/openapi -b vendor/autoload.php src/Common/Infrastructure/OpenApi src/News/Infrastructure/Api -o docs/openapi.yaml",
         "phpstan": "./vendor/bin/phpstan analyse src",
         "phpcs": "./vendor/bin/phpcs src",
         "phpcbf": "./vendor/bin/phpcbf src",

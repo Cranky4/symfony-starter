@@ -2,7 +2,7 @@ name: PHP Composer
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "brp" ]
   pull_request:
     branches: [ "main" ]
 
@@ -16,7 +16,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    
+
     - run: sudo apt install software-properties-common
     - run: sudo add-apt-repository ppa:ondrej/php
     - run: sudo apt update
@@ -44,9 +44,9 @@ jobs:
 
     - name: Run test suite
       run: composer run-script paratest
-      
+
     - name: Run static analysator
       run: composer run-script phpstan
-      
+
     - name: Run linter
       run: composer run-script phpcs

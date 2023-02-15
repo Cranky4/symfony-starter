@@ -8,5 +8,4 @@ use Exception;
 
 class ParsingErrorException extends Exception
 {
-
 }

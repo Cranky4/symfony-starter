@@ -29,11 +29,11 @@ readonly class NewsResponse
             example: '2021-01-03T02:30:00+01:00',
             nullable: false,
         )]
-        public int   $total,
+        public int $total,
         #[OA\Property(
             type: 'array',
             items: new OA\Items(
-                ref: '#/components/schemas/NewsResponse',
+                ref: '#/components/schemas/NewsItemResponse',
             )
         )]
         public array $items,

@@ -21,4 +21,6 @@ interface NewsRepositoryInterface
     public function existBySource(NewsSource $source): bool;
 
     public function countByDay(DateTimeImmutable $day): int;
+
+    public function findById(string $id): ?News;
 }

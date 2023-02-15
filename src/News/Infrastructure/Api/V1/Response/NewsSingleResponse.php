@@ -14,6 +14,8 @@ use OpenApi\Attributes as OA;
  *      short:string,
  *      day: string,
  *      time: string,
+ *      content: string,
+ *      image:?string
  * }
  */
 #[OA\Schema(
@@ -22,7 +24,7 @@ use OpenApi\Attributes as OA;
         'createdAt',
     ]
 )]
-readonly class NewsItemResponse
+readonly class NewsSingleResponse
 {
     public function __construct(
         #[OA\Property(
@@ -43,6 +45,11 @@ readonly class NewsItemResponse
         public string $short,
         #[OA\Property(
             type: 'string',
+            nullable: false,
+        )]
+        public string $content,
+        #[OA\Property(
+            type: 'string',
             format: 'date',
             nullable: false,
         )]
@@ -53,6 +60,12 @@ readonly class NewsItemResponse
             nullable: false,
         )]
         public string $time,
+        #[OA\Property(
+            type: 'string',
+            format: 'url',
+            nullable: true,
+        )]
+        public ?string $image = null,
     ) {
     }
 
@@ -62,11 +75,13 @@ readonly class NewsItemResponse
     public function toArray(): array
     {
         return [
-            'id'    => $this->id,
-            'title' => $this->title,
-            'short' => $this->short,
-            'day'   => $this->day->format('Y.m.d'),
-            'time'  => $this->time,
+            'id'      => $this->id,
+            'title'   => $this->title,
+            'short'   => $this->short,
+            'day'     => $this->day->format('Y.m.d'),
+            'time'    => $this->time,
+            'content' => htmlentities($this->content),
+            'image'   => $this->image,
         ];
     }
 }
