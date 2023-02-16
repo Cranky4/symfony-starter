@@ -14,5 +14,8 @@ use PHPUnit\Framework\TestCase;
  */
 class NewsControllerTest extends TestCase
 {
-
+    public function testMock(): void
+    {
+        self::assertTrue(true);
+    }
 }
