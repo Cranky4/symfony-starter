@@ -37,3 +37,6 @@ test:
 
 run:
 	docker compose exec app-php bin/console app:news:parse -s br -vvv
+
+symlink:
+	ln -sfr ./var/storage/default public/images

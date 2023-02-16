@@ -10,6 +10,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Throwable;
 
 #[AsCommand(
     name: 'app:news:parse',
@@ -42,7 +43,7 @@ final class ParseConsoleCommand extends Command
                 $output->write(sprintf('start parsing %s ...', $link));
                 $this->parser->parseAndSave($source, $link);
                 $output->writeln('saved!');
-            } catch (\Throwable $exception) {
+            } catch (Throwable $exception) {
                 $output->writeln($exception->getPrevious()?->getMessage() ?? $exception->getMessage());
             }
         }
