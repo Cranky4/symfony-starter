@@ -8,6 +8,7 @@ use App\News\Application\Exception\CannotCreateNewsException;
 use App\News\Domain\Entity\News;
 use App\News\Domain\Repository\NewsRepositoryInterface;
 use App\News\Domain\ValueObject\NewsSource;
+use App\News\Infrastructure\Service\Downloader\Downloader;
 use League\Flysystem\FilesystemOperator;
 use RuntimeException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -17,6 +18,7 @@ readonly class CreateCommandHandler
 {
     public function __construct(
         private NewsRepositoryInterface $newsRepository,
+        private Downloader $downloader,
         private FilesystemOperator $defaultStorage
     ) {
     }
@@ -54,26 +56,13 @@ readonly class CreateCommandHandler
         $this->newsRepository->save($news);
     }
 
-    /**
-     * @throws RuntimeException
-     */
     private function saveImageAndGetPath(string $image, string $id): string
     {
         $name = md5($image . time());
         $ext  = pathinfo($image, PATHINFO_EXTENSION);
         $path = sprintf('/news/%s/%s.%s', $id, $name, $ext);
 
-        $url = parse_url($image);
-        if (empty($url['host']) || empty($url['path'])) {
-            throw new RuntimeException('Cannot parse image path');
-        }
-
-        $norm = sprintf('%s://%s%s', $url['scheme'] ?? 'http', $url['host'], $url['path']);
-
-        $content = file_get_contents($norm);
-        if ($content === false) {
-            throw new RuntimeException('Cannot get image content');
-        }
+        $content = $this->downloader->getFileContent($image);
 
         $this->defaultStorage->write($path, $content);
 

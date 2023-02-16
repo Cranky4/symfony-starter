@@ -10,6 +10,7 @@ use App\News\Application\UseCase\News\Create\CreateCommandHandler;
 use App\News\Domain\Entity\News;
 use App\News\Domain\Repository\NewsRepositoryInterface;
 use App\News\Domain\ValueObject\NewsSource;
+use App\News\Infrastructure\Service\Downloader\Downloader;
 use DateTimeImmutable;
 use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -22,6 +23,7 @@ class CreateCommandHandlerTest extends TestCase
 {
     private NewsRepositoryInterface & MockObject $newsRepository;
     private FilesystemOperator & MockObject $storage;
+    private Downloader & MockObject $downloader;
 
     private CreateCommandHandler $handler;
 
@@ -31,9 +33,11 @@ class CreateCommandHandlerTest extends TestCase
 
         $this->newsRepository = $this->createMock(NewsRepositoryInterface::class);
         $this->storage        = $this->createMock(FilesystemOperator::class);
+        $this->downloader     = $this->createMock(Downloader::class);
 
         $this->handler = new CreateCommandHandler(
             newsRepository: $this->newsRepository,
+            downloader: $this->downloader,
             defaultStorage: $this->storage,
         );
     }
@@ -58,6 +62,10 @@ class CreateCommandHandlerTest extends TestCase
         $this->newsRepository
             ->expects($this->never())
             ->method('save');
+
+        $this->downloader
+            ->expects($this->never())
+            ->method('getFileContent');
 
         $this->storage
             ->expects($this->never())
@@ -110,15 +118,19 @@ class CreateCommandHandlerTest extends TestCase
                             $n->getId(),
                         );
                         // TODO: тут можно проверить другие поля
-                        self::assertEquals(
-                            'http://image.com/1.png',
-                            $n->getImage(),
-                        );
+                        self::assertNotNull($n->getImage());
+                        self::assertStringStartsWith('/news/', $n->getImage());
 
                         return true;
                     },
                 )
             );
+
+        $this->downloader
+            ->expects($this->once())
+            ->method('getFileContent')
+            ->with('http://image.com/1.png')
+            ->willReturn('some_resource');
 
         $this->storage
             ->expects($this->once())
